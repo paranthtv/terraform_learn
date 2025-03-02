@@ -1,0 +1,28 @@
+   
+steps:
+  - name: 'hashicorp/terraform:latest'
+    args:
+      - '-c'
+      - |
+        cd terraform/
+        echo "*************** TERRAFORM INIT ******************"
+        echo "*************************************************"        
+        terraform init -backend-config="bucket=${_TF_STATE_BUCKET}" || exit 1
+        #echo "*************** TERRAFORM IMPORT STARTED ******************"
+                
+        #multiple module
+        
+        #echo "*************** TERRAFORM IMPORT COMPLETED ******************"
+        echo "*************** TERRAFORM PLAN ******************"
+        echo "*************************************************"
+        terraform plan -var="project=${PROJECT_ID}" -var="env=${_ENV}" -var="tf_state_bucket=${_TF_STATE_BUCKET}" || exit 1
+        echo "*************** TERRAFORM APPLY ******************"
+        echo "*************************************************"
+        echo "*************************************************"
+        terraform apply -auto-approve -var="project=${PROJECT_ID}" -var="env=${_ENV}" -var="tf_state_bucket=${_TF_STATE_BUCKET}" || exit 1
+    entrypoint: sh
+  
+logsBucket: 'gs://${_TF_LOG_BUCKET}'
+options:
+  logging: GCS_ONLY
+  
